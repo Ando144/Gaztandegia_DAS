@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
+    android:layout_height="match_parent"
+    android:background="#F8F9FA"
+    tools:context=".SettingsActivity">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/topBar"
@@ -26,7 +28,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
-                <!-- Boton de volver al inicio de sesion-->
                 <ImageButton
                     android:id="@+id/btnCerrarSesion"
                     android:layout_width="wrap_content"
@@ -37,7 +38,7 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent" />
-                <!-- Aqui ira el logo de la empresa que sea-->
+
                 <ImageView
                     android:id="@+id/logoEmpresa"
                     android:layout_width="wrap_content"
@@ -54,140 +55,273 @@
         </androidx.appcompat.widget.Toolbar>
     </com.google.android.material.appbar.AppBarLayout>
 
-
-
-
     <LinearLayout
-            android:id="@+id/bottomNav"
+        android:id="@+id/bottomNav"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:background="#FFFFFF"
+        android:elevation="8dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <LinearLayout
+            android:id="@+id/navNuevoLote"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp">
+            <ImageView android:layout_width="26dp" android:layout_height="26dp" app:tint="#9E9E9E" android:src="@android:drawable/ic_input_add" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="3dp" android:text="Nuevo Lote" android:textColor="#9E9E9E" android:textSize="10sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/navVerLotes"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp">
+            <ImageView android:layout_width="26dp" android:layout_height="26dp" app:tint="#9E9E9E" android:src="@android:drawable/ic_menu_agenda" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="3dp" android:text="Ver Lotes" android:textColor="#9E9E9E" android:textSize="10sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/navEstadisticas"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp">
+            <ImageView android:layout_width="26dp" android:layout_height="26dp" app:tint="#9E9E9E" android:src="@android:drawable/ic_menu_sort_by_size" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="3dp" android:text="Estadísticas" android:textColor="#9E9E9E" android:textSize="10sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/navAjustes"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="#EDE7F6"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp">
+            <ImageView android:layout_width="26dp" android:layout_height="26dp" app:tint="#6200EE" android:src="@android:drawable/ic_menu_manage" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="3dp" android:text="Ajustes" android:textColor="#6200EE" android:textSize="10sp" android:textStyle="bold" />
+            <View android:layout_width="24dp" android:layout_height="3dp" android:layout_marginTop="4dp" android:background="#6200EE" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:clipToPadding="false"
+        app:layout_constraintTop_toBottomOf="@id/topBar"
+        app:layout_constraintBottom_toTopOf="@id/bottomNav"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="64dp"
-            android:background="#FFFFFF"
-            android:elevation="8dp"
-            android:orientation="horizontal"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent">
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
 
-            <!-- Item: Nuevo Lote  -->
-            <LinearLayout
-                android:id="@+id/navNuevoLote"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:orientation="vertical"
-                android:paddingTop="8dp"
-                android:paddingBottom="8dp">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Configuración"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:textColor="#333333"
+                android:layout_marginBottom="24dp" />
 
-                <ImageView
-                    android:layout_width="26dp"
-                    android:layout_height="26dp"
-                    android:colorFilter="#6200EE"
-                    android:src="@android:drawable/ic_input_add" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="PERFIL DE LA QUESERÍA"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="#9E9E9E"
+                android:layout_marginBottom="8dp"
+                android:layout_marginStart="4dp"/>
 
-                <TextView
-                    android:layout_width="wrap_content"
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                android:layout_marginBottom="24dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="3dp"
-                    android:text="Nuevo Lote"
-                    android:textColor="#9E9E9E"
-                    android:textSize="10sp"
-                    android:textStyle="bold" />
+                    android:orientation="vertical"
+                    android:padding="16dp"
+                    android:gravity="center_horizontal">
 
+                    <FrameLayout
+                        android:layout_width="100dp"
+                        android:layout_height="100dp"
+                        android:layout_marginBottom="16dp">
 
+                        <ImageView
+                            android:id="@+id/imgLogoAjustes"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="#E0E0E0"
+                            android:src="@android:drawable/ic_menu_gallery"
+                            android:scaleType="centerCrop" />
 
-            </LinearLayout>
+                        <ImageButton
+                            android:id="@+id/btnCambiarLogo"
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:layout_gravity="bottom|end"
+                            android:background="@android:drawable/ic_menu_camera"
+                            android:backgroundTint="#6200EE"
+                            android:elevation="4dp" />
+                    </FrameLayout>
 
-            <!-- Item: Ver Lotes -->
-            <LinearLayout
-                android:id="@+id/navVerLotes"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:orientation="vertical"
-                android:paddingTop="8dp"
-                android:paddingBottom="8dp">
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Nombre de la Quesería">
 
-                <ImageView
-                    android:layout_width="26dp"
-                    android:layout_height="26dp"
-                    android:colorFilter="#9E9E9E"
-                    android:src="@android:drawable/ic_menu_agenda" />
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/inputNombreQueseria"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="textPersonName"
+                            android:text="Gaztandegia SL" />
+                    </com.google.android.material.textfield.TextInputLayout>
 
-                <TextView
-                    android:layout_width="wrap_content"
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnGuardarPerfil"
+                        style="@style/Widget.MaterialComponents.Button.TextButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="end"
+                        android:layout_marginTop="8dp"
+                        android:text="Guardar Cambios"
+                        android:textColor="#6200EE" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="PREFERENCIAS"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="#9E9E9E"
+                android:layout_marginBottom="8dp"
+                android:layout_marginStart="4dp"/>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                android:layout_marginBottom="24dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="3dp"
-                    android:text="Ver Lotes"
-                    android:textColor="#9E9E9E"
-                    android:textSize="10sp" />
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
-            </LinearLayout>
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/switchModoOscuro"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Modo Oscuro"
+                        android:textSize="16sp"
+                        android:layout_marginBottom="16dp" />
 
-            <!-- Item: Estadísticas -->
-            <LinearLayout
-                android:id="@+id/navEstadisticas"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:orientation="vertical"
-                android:paddingTop="8dp"
-                android:paddingBottom="8dp">
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/switchNotificaciones"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Notificaciones de la app"
+                        android:textSize="16sp"
+                        android:checked="true"
+                        android:layout_marginBottom="16dp" />
 
-                <ImageView
-                    android:layout_width="26dp"
-                    android:layout_height="26dp"
-                    android:colorFilter="#9E9E9E"
-                    android:src="@android:drawable/ic_menu_sort_by_size" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Idioma / Hizkuntza"
+                        android:textSize="14sp"
+                        android:textColor="#666666"
+                        android:layout_marginBottom="8dp" />
 
-                <TextView
-                    android:layout_width="wrap_content"
+                    <Spinner
+                        android:id="@+id/spinnerIdioma"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:backgroundTint="#6200EE" />
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="BORRADO DE HISTORIAL"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="#F44336"
+                android:layout_marginBottom="8dp"
+                android:layout_marginStart="4dp"/>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:strokeColor="#FFCDD2"
+                app:strokeWidth="1dp"
+                android:layout_marginBottom="24dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="3dp"
-                    android:text="Estadísticas"
-                    android:textColor="#9E9E9E"
-                    android:textSize="10sp" />
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
-            </LinearLayout>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Esta acción no se puede deshacer. Eliminará todos los lotes guardados en el dispositivo."
+                        android:textSize="14sp"
+                        android:textColor="#666666"
+                        android:layout_marginBottom="16dp" />
 
-            <!-- Item: Ajustes -->
-            <LinearLayout
-                android:id="@+id/navAjustes"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:background="#EDE7F6"
-                android:gravity="center"
-                android:orientation="vertical"
-                android:paddingTop="8dp"
-                android:paddingBottom="8dp">
-
-                <ImageView
-                    android:layout_width="26dp"
-                    android:layout_height="26dp"
-                    android:colorFilter="#9E9E9E"
-                    android:src="@android:drawable/ic_menu_manage"
-                    />
-
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="3dp"
-                    android:text="Ajustes"
-                    android:textColor="#6200EE"
-                    android:textSize="10sp" />
-                <!-- Indicador activo -->
-                <View
-                    android:layout_width="24dp"
-                    android:layout_height="3dp"
-                    android:layout_marginTop="4dp"
-                    android:background="#6200EE" />
-
-            </LinearLayout>
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnBorrarHistorial"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="BORRAR HISTORIAL DE LOTES"
+                        android:textColor="#F44336"
+                        app:strokeColor="#F44336"
+                        app:icon="@android:drawable/ic_menu_delete"
+                        app:iconTint="#F44336" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
         </LinearLayout>
+    </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

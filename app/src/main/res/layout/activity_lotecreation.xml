@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
-
-
+    android:background="#F8F9FA"
+    tools:context=".NuevoLoteActivity">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/topBar"
@@ -26,7 +28,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
-                <!-- Boton de volver al inicio de sesion-->
                 <ImageButton
                     android:id="@+id/btnCerrarSesion"
                     android:layout_width="wrap_content"
@@ -37,7 +38,7 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent" />
-                <!-- Aqui ira el logo de la empresa que sea-->
+
                 <ImageView
                     android:id="@+id/logoEmpresa"
                     android:layout_width="wrap_content"
@@ -65,7 +66,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- Item: Nuevo Lote (RESALTADO) -->
         <LinearLayout
             android:id="@+id/navNuevoLote"
             android:layout_width="0dp"
@@ -76,32 +76,11 @@
             android:background="#EDE7F6"
             android:paddingTop="8dp"
             android:paddingBottom="8dp">
-
-            <ImageView
-                android:layout_width="26dp"
-                android:layout_height="26dp"
-                android:src="@android:drawable/ic_input_add"
-                android:colorFilter="#6200EE" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Nuevo Lote"
-                android:textSize="10sp"
-                android:textStyle="bold"
-                android:textColor="#6200EE"
-                android:layout_marginTop="3dp" />
-
-            <!-- Esto es lo q lo resalta  -->
-            <View
-                android:layout_width="24dp"
-                android:layout_height="3dp"
-                android:background="#6200EE"
-                android:layout_marginTop="4dp" />
-
+            <ImageView android:layout_width="26dp" android:layout_height="26dp" android:src="@android:drawable/ic_input_add" app:tint="#6200EE" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Nuevo Lote" android:textSize="10sp" android:textStyle="bold" android:textColor="#6200EE" android:layout_marginTop="3dp" />
+            <View android:layout_width="24dp" android:layout_height="3dp" android:background="#6200EE" android:layout_marginTop="4dp" />
         </LinearLayout>
 
-        <!-- Item: Ver Lotes -->
         <LinearLayout
             android:id="@+id/navVerLotes"
             android:layout_width="0dp"
@@ -111,24 +90,10 @@
             android:gravity="center"
             android:paddingTop="8dp"
             android:paddingBottom="8dp">
-
-            <ImageView
-                android:layout_width="26dp"
-                android:layout_height="26dp"
-                android:src="@android:drawable/ic_menu_agenda"
-                android:colorFilter="#9E9E9E" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Ver Lotes"
-                android:textSize="10sp"
-                android:textColor="#9E9E9E"
-                android:layout_marginTop="3dp" />
-
+            <ImageView android:layout_width="26dp" android:layout_height="26dp" android:src="@android:drawable/ic_menu_agenda" app:tint="#9E9E9E" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Ver Lotes" android:textSize="10sp" android:textColor="#9E9E9E" android:layout_marginTop="3dp" />
         </LinearLayout>
 
-        <!-- Item: Estadísticas -->
         <LinearLayout
             android:id="@+id/navEstadisticas"
             android:layout_width="0dp"
@@ -138,24 +103,10 @@
             android:gravity="center"
             android:paddingTop="8dp"
             android:paddingBottom="8dp">
-
-            <ImageView
-                android:layout_width="26dp"
-                android:layout_height="26dp"
-                android:src="@android:drawable/ic_menu_sort_by_size"
-                android:colorFilter="#9E9E9E" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Estadísticas"
-                android:textSize="10sp"
-                android:textColor="#9E9E9E"
-                android:layout_marginTop="3dp" />
-
+            <ImageView android:layout_width="26dp" android:layout_height="26dp" android:src="@android:drawable/ic_menu_sort_by_size" app:tint="#9E9E9E" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Estadísticas" android:textSize="10sp" android:textColor="#9E9E9E" android:layout_marginTop="3dp" />
         </LinearLayout>
 
-        <!-- Item: Ajustes -->
         <LinearLayout
             android:id="@+id/navAjustes"
             android:layout_width="0dp"
@@ -165,23 +116,186 @@
             android:gravity="center"
             android:paddingTop="8dp"
             android:paddingBottom="8dp">
+            <ImageView android:layout_width="26dp" android:layout_height="26dp" android:src="@android:drawable/ic_menu_manage" app:tint="#9E9E9E" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Ajustes" android:textSize="10sp" android:textColor="#9E9E9E" android:layout_marginTop="3dp" />
+        </LinearLayout>
+    </LinearLayout>
 
-            <ImageView
-                android:layout_width="26dp"
-                android:layout_height="26dp"
-                android:src="@android:drawable/ic_menu_manage"
-                android:colorFilter="#9E9E9E" />
+    <ScrollView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:clipToPadding="false"
+        android:fillViewport="true"
+        app:layout_constraintTop_toBottomOf="@id/topBar"
+        app:layout_constraintBottom_toTopOf="@id/bottomNav"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="24dp">
+
+            <TextView
+                android:id="@+id/txtIdLote"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Lote ID: L-2026-X"
+                android:textAlignment="center"
+                android:textColor="#333333"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="24dp" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:hint="Fecha de Elaboración"
+                app:startIconDrawable="@android:drawable/ic_menu_today">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/inputFecha"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:focusable="false"
+                    android:clickable="true" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:hint="Temperatura de Pasteurización (ºC)">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/inputTempPast"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="numberDecimal" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                android:hint="Temperatura de Cuajado (ºC)">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/inputTempCuajado"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="numberDecimal" />
+            </com.google.android.material.textfield.TextInputLayout>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Ajustes"
-                android:textSize="10sp"
-                android:textColor="#9E9E9E"
-                android:layout_marginTop="3dp" />
+                android:text="Tiempo de Cuajado (Minutos)"
+                android:textStyle="bold"
+                android:textColor="#666666" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="16dp">
+
+                <com.google.android.material.slider.Slider
+                    android:id="@+id/sliderTiempo"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:valueFrom="10.0"
+                    android:valueTo="120.0"
+                    android:value="45.0"
+                    android:stepSize="1.0" />
+
+                <EditText
+                    android:id="@+id/inputTiempoManual"
+                    android:layout_width="60dp"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    android:textAlignment="center"
+                    android:text="45"
+                    android:backgroundTint="#6200EE" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:baselineAligned="false"
+                android:layout_marginBottom="16dp">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="8dp"
+                    android:hint="PH Corte">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/inputPhCorte"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="numberDecimal" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    android:hint="PH Final">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/inputPhFinal"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="numberDecimal" />
+                </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Observaciones">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/inputObservaciones"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textMultiLine"
+                    android:minLines="3"
+                    android:gravity="top|start" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnGuardarLote"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:layout_marginTop="16dp"
+                android:text="GUARDAR LOTE"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:cornerRadius="8dp"
+                app:icon="@android:drawable/ic_menu_save"
+                app:iconGravity="textStart" />
 
         </LinearLayout>
-
-    </LinearLayout>
+    </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
