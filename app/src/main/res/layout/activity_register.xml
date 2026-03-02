@@ -5,7 +5,8 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".MainActivity"
+    android:fitsSystemWindows="true">
 
     <EditText
         android:id="@+id/RegName"
@@ -30,7 +31,7 @@
         app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/RegPassword"
-        app:layout_constraintVertical_bias="0.334" />
+        app:layout_constraintVertical_bias="0.23" />
 
     <EditText
         android:id="@+id/RegEmail"
@@ -106,7 +107,7 @@
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/RegPassword"
-        app:layout_constraintVertical_bias="0.833" />
+        app:layout_constraintVertical_bias="0.0" />
 
     <ImageView
         android:id="@+id/RegAvatar"
@@ -118,4 +119,34 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:srcCompat="@tools:sample/avatars" />
+
+    <Button
+        android:id="@+id/RegAccesBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="160dp"
+        android:layout_marginTop="17dp"
+        android:layout_marginEnd="161dp"
+        android:layout_marginBottom="14dp"
+        android:text="Acceder"
+        app:layout_constraintBottom_toTopOf="@+id/RegLogginBtn"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.454"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/RegRepPassword" />
+
+    <Button
+        android:id="@+id/RegLogginBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="160dp"
+        android:layout_marginTop="14dp"
+        android:layout_marginEnd="163dp"
+        android:layout_marginBottom="57dp"
+        android:text="Log in"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/RegAccesBtn" />
 </androidx.constraintlayout.widget.ConstraintLayout>
