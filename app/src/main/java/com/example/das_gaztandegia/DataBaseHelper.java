@@ -53,20 +53,25 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         return resultado != -1;
     }
 
-    // Comprueba si el correo y la contraseña coinciden para dejarle entrar en la app.
-    public boolean comprobarLogin(String email, String password) {
-        SQLiteDatabase bd = getReadableDatabase();
+    // Comprueba el login y devuelve el ID del usuario (o -1 si falla)
+    public int comprobarLogin(String email, String password) {
+        android.database.sqlite.SQLiteDatabase bd = getReadableDatabase();
 
         String[] argumentos = new String[] {email, password};
-        Cursor c = bd.rawQuery("SELECT * FROM Usuarios WHERE email=? AND password=?", argumentos);
+        // Hacemos el SELECT
+        android.database.Cursor c = bd.rawQuery("SELECT id_usuario FROM Usuarios WHERE email=? AND password=?", argumentos);
 
-        // Si el cursor encuentra al menos 1 fila, es que el usuario existe.
-        boolean loginExitoso = c.getCount() > 0;
+        int idTrabajador = -1; // Por defecto es -1 (falso/error)
+
+        // Si el cursor encuentra al usuario, nos movemos a la primera fila y sacamos su ID
+        if (c.moveToFirst()) {
+            idTrabajador = c.getInt(0); // Columna 0 es id_usuario
+        }
 
         c.close();
         bd.close();
 
-        return loginExitoso;
+        return idTrabajador;
     }
 
     /* =========================================================================
@@ -74,10 +79,12 @@ public class DataBaseHelper extends SQLiteOpenHelper {
        ========================================================================= */
 
     // Guarda un nuevo lote de queso asociándolo a un usuario concreto mediante su ID.
-    public boolean insertarLote(String fecha, double temperatura, int tiempo_cuajado, double ph, String nota_calidad, int id_usuario_fk) {
+    // Guarda un nuevo lote. Ahora le pasamos nosotros el ID basado en la fecha.
+    public boolean insertarLote(int id_lote, String fecha, double temperatura, int tiempo_cuajado, double ph, String nota_calidad, int id_usuario_fk) {
         SQLiteDatabase bd = getWritableDatabase();
 
         ContentValues nuevo = new ContentValues();
+        nuevo.put("id_lote", id_lote); // ¡Añadimos el ID que hemos calculado!
         nuevo.put("fecha", fecha);
         nuevo.put("temperatura", temperatura);
         nuevo.put("tiempo_cuajado", tiempo_cuajado);
@@ -85,6 +92,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         nuevo.put("nota_calidad", nota_calidad);
         nuevo.put("id_usuario_fk", id_usuario_fk);
 
+        // Si intentamos meter un ID que ya existe (dos quesos el mismo día), insert devolverá -1
         long resultado = bd.insert("Lotes", null, nuevo);
         bd.close();
 
@@ -107,6 +115,27 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         String[] argumentos = new String[]{String.valueOf(id_lote)};
         bd.delete("Lotes", "id_lote=?", argumentos);
 
+        bd.close();
+    }
+
+    // Método para buscar un queso en concreto por su ID
+    public android.database.Cursor obtenerLotePorId(int id_lote) {
+        android.database.sqlite.SQLiteDatabase bd = getReadableDatabase();
+        String[] argumentos = new String[]{String.valueOf(id_lote)};
+
+        // Buscamos solo el que coincida con el ID que hemos tocado
+        return bd.rawQuery("SELECT * FROM Lotes WHERE id_lote=?", argumentos);
+    }
+
+    // Método para actualizar la nota (las estrellas) de un lote existente
+    public void actualizarNotaLote(int id_lote, String nuevaNota) {
+        android.database.sqlite.SQLiteDatabase bd = getWritableDatabase();
+
+        android.content.ContentValues valores = new android.content.ContentValues();
+        valores.put("nota_calidad", nuevaNota); // Sobrescribimos el campo con las estrellas
+
+        // Hacemos un UPDATE en la tabla Lotes donde el ID coincida
+        bd.update("Lotes", valores, "id_lote=?", new String[]{String.valueOf(id_lote)});
         bd.close();
     }
 }

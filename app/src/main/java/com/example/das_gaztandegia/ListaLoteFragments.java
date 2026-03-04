@@ -80,6 +80,45 @@ public class ListaLoteFragments extends Fragment {
             }
         });
 
+        /* =========================================================================
+           5. ABRIR DETALLES DEL LOTE (CLIC NORMAL)
+           Nota: La lógica para detectar si estamos en vertical u horizontal buscando
+           el contenedor de detalle por ID es el patrón Master-Detail clásico de Android.
+           StackOverflow ref: https://stackoverflow.com/questions/17495914/how-to-implement-master-detail-flow
+           ========================================================================= */
+        listaVisual.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                // 1. Sacamos el ID del lote que hemos tocado
+                int idLoteSeleccionado = idsQuesos.get(position);
+
+                // 2. Preparamos el fragmento de los detalles
+                // OJO: Cambia "DetalleLoteFragment" por el nombre real de tu clase
+                DetalleLoteFragment fragmentDetalle = new DetalleLoteFragment();
+
+                // Le pasamos el ID del queso "empaquetado" en un Bundle para que sepa cuál cargar
+                Bundle paqueteDatos = new Bundle();
+                paqueteDatos.putInt("ID_LOTE", idLoteSeleccionado);
+                fragmentDetalle.setArguments(paqueteDatos);
+
+                // 3. Comprobamos si el móvil está en vertical o horizontal
+                View huecoDerecho = requireActivity().findViewById(R.id.contenedor_detalle);
+
+                if (huecoDerecho != null) {
+                    // HORIZONTAL: Cambiamos solo el trozo de la derecha
+                    requireActivity().getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.contenedor_detalle, fragmentDetalle)
+                            .commit();
+                } else {
+                    // VERTICAL: Cambiamos toda la pantalla y le decimos a Android que nos deje volver atrás
+                    requireActivity().getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.contenedor_maestro, fragmentDetalle)
+                            .addToBackStack(null) // Esto hace que si pulsas la flecha de "Atrás", vuelvas a la lista
+                            .commit();
+                }
+            }
+        });
+
         return view;
     }
 

@@ -1,6 +1,5 @@
 package com.example.das_gaztandegia;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -45,13 +44,22 @@ public class RegisterActivity extends AppCompatActivity {
                     Toast.makeText(RegisterActivity.this, "Las contraseñas no coinciden", Toast.LENGTH_SHORT).show();
                 }
                 else {
-                    // TODO: Aquí en el futuro guardaremos el usuario en la Base de Datos SQLite.
+                    // --- AQUÍ EMPIEZA LA CONEXIÓN CON LA BASE DE DATOS ---
 
-                    // Por ahora, le decimos que todo ha ido bien
-                    Toast.makeText(RegisterActivity.this, "¡Registro completado con éxito!", Toast.LENGTH_SHORT).show();
+                    // Instanciamos nuestra base de datos
+                    DataBaseHelper gestorDB = new DataBaseHelper(RegisterActivity.this, "gaztandegia.db", null, 1);
 
-                    // Como ya se ha registrado, destruimos esta pantalla para devolverle al Login
-                    finish();
+                    // Llamamos al método que inserta al usuario y guardamos si ha tenido éxito (true) o no (false)
+                    boolean exito = gestorDB.insertarUsuario(nombre, email, password);
+
+                    if (exito) {
+                        Toast.makeText(RegisterActivity.this, "¡Registro completado con éxito!", Toast.LENGTH_SHORT).show();
+                        // Como ya se ha registrado, destruimos esta pantalla para devolverle al Login
+                        finish();
+                    } else {
+                        // Si devuelve false, es porque SQLite ha rechazado el insert (probablemente email repetido)
+                        Toast.makeText(RegisterActivity.this, "Error: Ya existe una cuenta con este email", Toast.LENGTH_LONG).show();
+                    }
                 }
             }
         });

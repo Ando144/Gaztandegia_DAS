@@ -24,40 +24,48 @@ public class LoginActivity extends AppCompatActivity {
         Button btnAcceder = findViewById(R.id.accesBtn);
         Button btnRegistrar = findViewById(R.id.registerBtn);
 
-        // 3. Programamos el clic del botón Acceder
+// 3. Programamos el clic del botón Acceder
         btnAcceder.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Sacamos el texto que ha escrito
                 String email = cajaEmail.getText().toString();
                 String password = cajaPassword.getText().toString();
 
-                // Validación básica por ahora (luego meteremos aquí lo de SQLite)
                 if (email.isEmpty() || password.isEmpty()) {
-                    // Mensajito flotante para avisar de que falta algo
                     Toast.makeText(LoginActivity.this, "Por favor, rellena todos los campos", Toast.LENGTH_SHORT).show();
                 } else {
-                    // Intent explícito para ir al menú principal (Teoría diapo 12)
-                    Intent intent = new Intent(LoginActivity.this, MenuActivity.class);
-                    startActivity(intent);
+                    DataBaseHelper gestorDB = new DataBaseHelper(LoginActivity.this, "gaztandegia.db", null, 1);
 
-                    // ¡OBLIGATORIO! Matamos la Activity de login.
-                    // Así el usuario no puede darle al botón "Atrás" del móvil para entrar de nuevo.
-                    finish();
+                    // Ahora la BD nos devuelve un número entero
+                    int idDelUsuarioLogueado = gestorDB.comprobarLogin(email, password);
+
+                    if (idDelUsuarioLogueado != -1) { // Si es diferente a -1, es que existe
+
+                        // --- AQUÍ USAMOS LAS SHARED o esas PARA GUARDAR EL ID DEL TRABAJADOR ACTUAL ---
+                        android.content.SharedPreferences preferencias = getSharedPreferences("MisPreferenciasQueseria", MODE_PRIVATE);
+                        android.content.SharedPreferences.Editor editor = preferencias.edit();
+                        editor.putInt("ID_TRABAJADOR_ACTUAL", idDelUsuarioLogueado);
+                        editor.apply(); // Guardamos los cambios
+
+                        Toast.makeText(LoginActivity.this, "¡Bienvenido!", Toast.LENGTH_SHORT).show();
+
+                        Intent intent = new Intent(LoginActivity.this, MenuActivity.class);
+                        startActivity(intent);
+                        finish();
+                    } else {
+                        Toast.makeText(LoginActivity.this, "Error: Email o contraseña incorrectos", Toast.LENGTH_LONG).show();
+                    }
                 }
             }
         });
-
         // 4. Programamos el clic del botón Registrarse
         btnRegistrar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Veo en tus archivos que tienes un activity_register.xml, así que viajaremos ahí
+                // Viajamos a la pantalla de registro
                 Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
                 startActivity(intent);
 
-                // OJO: Aquí NO ponemos finish(). Si el usuario se arrepiente de registrarse
-                // sí que queremos que pueda darle a "Atrás" y volver a este Login.
             }
         });
     }

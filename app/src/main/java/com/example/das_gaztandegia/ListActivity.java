@@ -55,13 +55,26 @@ public class ListActivity extends AppCompatActivity {
             });
         }
 
-
-        // Cargamos el fragmento en el contenedor maestro al abrir la pantalla
+        /* =========================================================================
+           LÓGICA DE FRAGMENTS (MAESTRO - DETALLE)
+           ========================================================================= */
         if (savedInstanceState == null) {
+
+            // 1. Siempre cargamos la lista en el hueco principal (maestro)
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.contenedor_maestro, new ListaLotesFragment())
+                    .replace(R.id.contenedor_maestro, new ListaLoteFragments())
                     .commit();
-        }    }
+
+            // 2. Comprobamos si el móvil está en horizontal buscando el contenedor derecho
+            View huecoDerecho = findViewById(R.id.contenedor_detalle);
+            if (huecoDerecho != null) {
+                // Si existe, metemos el fragmento vacío de inicio para que no se vea en blanco
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.contenedor_detalle, new FragmentVacio())
+                        .commit();
+            }
+        }
+    }
 
     private void irAPantalla(Class<?> claseDestino) {
         Intent intent = new Intent(this, claseDestino);
