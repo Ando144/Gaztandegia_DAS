@@ -55,8 +55,13 @@ public class ListActivity extends AppCompatActivity {
             });
         }
 
-        // TODO: Aquí meteremos la lógica de Fragments cuando conectemos la BBDD
-    }
+
+        // Cargamos el fragmento en el contenedor maestro al abrir la pantalla
+        if (savedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.contenedor_maestro, new ListaLotesFragment())
+                    .commit();
+        }    }
 
     private void irAPantalla(Class<?> claseDestino) {
         Intent intent = new Intent(this, claseDestino);
