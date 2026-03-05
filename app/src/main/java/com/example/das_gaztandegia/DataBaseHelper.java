@@ -20,11 +20,24 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
 
         // Tabla de trabajadores. Usamos UNIQUE en el email para que no se puedan registrar dos veces con el mismo correo.
-        sqLiteDatabase.execSQL("CREATE TABLE Usuarios ('id_usuario' INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 'nombre' VARCHAR(255), 'email' VARCHAR(255) UNIQUE, 'password' VARCHAR(255))");
+        sqLiteDatabase.execSQL("CREATE TABLE Usuarios " +
+                "('id_usuario' INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                "'nombre' VARCHAR(255), " +
+                "'email' VARCHAR(255) UNIQUE, " +
+                "'password' VARCHAR(255))");
 
         // Tabla de los quesos. Le metemos la clave foránea (id_usuario_fk) para saber qué trabajador hizo cada lote.
-        sqLiteDatabase.execSQL("CREATE TABLE Lotes ('id_lote' INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 'fecha' VARCHAR(255), 'temperatura' REAL, 'tiempo_cuajado' INTEGER, 'ph' REAL, 'nota_calidad' VARCHAR(255), 'id_usuario_fk' INTEGER, FOREIGN KEY('id_usuario_fk') REFERENCES Usuarios('id_usuario'))");
-    }
+        sqLiteDatabase.execSQL("CREATE TABLE Lotes (" +
+                "id_lote INTEGER PRIMARY KEY, " +
+                "fecha TEXT, " +
+                "temperatura_pasteurizacion REAL, " +
+                "temperatura REAL, " +
+                "tiempo_cuajado INTEGER, " +
+                "ph_corte REAL, " +
+                "ph REAL, " +
+                "observaciones VARCHAR(255), " +
+                "nota_calidad TEXT, " +
+                "id_usuario_fk INTEGER)");    }
 
     // Si algún día actualizamos la versión de la BD, a lo bruto: borramos las tablas y las hacemos de nuevo.
     @Override
@@ -78,24 +91,24 @@ public class DataBaseHelper extends SQLiteOpenHelper {
        MÉTODOS PARA LOS QUESOS (LOTES)
        ========================================================================= */
 
-    // Guarda un nuevo lote de queso asociándolo a un usuario concreto mediante su ID.
-    // Guarda un nuevo lote. Ahora le pasamos nosotros el ID basado en la fecha.
-    public boolean insertarLote(int id_lote, String fecha, double temperatura, int tiempo_cuajado, double ph, String nota_calidad, int id_usuario_fk) {
-        SQLiteDatabase bd = getWritableDatabase();
+    // Método actualizado con todos los campos
+    public boolean insertarLote(int id_lote, String fecha, double temp_past, double temp_cuaj, int tiempo_cuaj, double ph_corte, double ph_final, String observaciones, int id_usuario_fk) {
+        android.database.sqlite.SQLiteDatabase bd = getWritableDatabase();
 
-        ContentValues nuevo = new ContentValues();
-        nuevo.put("id_lote", id_lote); // ¡Añadimos el ID que hemos calculado!
+        android.content.ContentValues nuevo = new android.content.ContentValues();
+        nuevo.put("id_lote", id_lote);
         nuevo.put("fecha", fecha);
-        nuevo.put("temperatura", temperatura);
-        nuevo.put("tiempo_cuajado", tiempo_cuajado);
-        nuevo.put("ph", ph);
-        nuevo.put("nota_calidad", nota_calidad);
+        nuevo.put("temperatura_pasteurizacion", temp_past);
+        nuevo.put("temperatura", temp_cuaj);
+        nuevo.put("tiempo_cuajado", tiempo_cuaj);
+        nuevo.put("ph_corte", ph_corte);
+        nuevo.put("ph", ph_final);
+        nuevo.put("observaciones", observaciones);
+        nuevo.put("nota_calidad", ""); // La nota empieza vacía hasta que el usuario le ponga estrellas
         nuevo.put("id_usuario_fk", id_usuario_fk);
 
-        // Si intentamos meter un ID que ya existe (dos quesos el mismo día), insert devolverá -1
         long resultado = bd.insert("Lotes", null, nuevo);
         bd.close();
-
         return resultado != -1;
     }
 
@@ -137,5 +150,23 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         // Hacemos un UPDATE en la tabla Lotes donde el ID coincida
         bd.update("Lotes", valores, "id_lote=?", new String[]{String.valueOf(id_lote)});
         bd.close();
+    }
+
+    // Método combinado para buscar texto y filtrar por nota mínima
+    public android.database.Cursor obtenerLotesFiltrados(String textoBusqueda, float notaMinima) {
+        android.database.sqlite.SQLiteDatabase bd = getReadableDatabase();
+
+        // Buscamos si el texto coincide en el ID o en la fecha
+        String query = "SELECT * FROM Lotes WHERE (CAST(id_lote AS TEXT) LIKE ? OR fecha LIKE ?)";
+
+        // Si el usuario quiere filtrar por nota (por ejemplo, buscar las de 4+ estrellas)
+        if (notaMinima > 0) {
+            // Casteamos la nota_calidad a número real para que SQLite sepa compararlo matemáticamente
+            query += " AND CAST(nota_calidad AS REAL) >= ?";
+            return bd.rawQuery(query, new String[]{"%" + textoBusqueda + "%", "%" + textoBusqueda + "%", String.valueOf(notaMinima)});
+        } else {
+            // Si notaMinima es 0, mostramos todas las notas
+            return bd.rawQuery(query, new String[]{"%" + textoBusqueda + "%", "%" + textoBusqueda + "%"});
+        }
     }
 }

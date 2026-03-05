@@ -14,12 +14,25 @@ public class ListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list);
 
+        // 1. Botón de volver al menú (Flecha inteligente)
         ImageButton btnVolver = findViewById(R.id.btnCerrarSesion);
         if (btnVolver != null) {
             btnVolver.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    irAPantalla(MenuActivity.class);
+                    /* =========================================================================
+                       LÓGICA DE LA FLECHA DE VOLVER CON FRAGMENTS
+                       Nota: Como la flecha normal me sacaba al menú principal aunque estuviera
+                       viendo un detalle de un queso, he buscado como cerrar solo el fragmento actual.
+                      En  StackOverflow dice que hay que contar la "pila" de fragmentos (BackStack)
+                       y hacer un "pop" para cerrarlo.
+                       Fuente: https://stackoverflow.com/questions/52217114/adding-back-button-to-fragment
+                       ========================================================================= */
+                    if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+                        getSupportFragmentManager().popBackStack(); // Cierra el detalle y vuelve a la lista
+                    } else {
+                        irAPantalla(MenuActivity.class); // Viaja al menú principal
+                    }
                 }
             });
         }

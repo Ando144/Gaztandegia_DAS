@@ -10,6 +10,8 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.SearchView;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -26,31 +28,86 @@ public class ListaLoteFragments extends Fragment {
     private ArrayList<Integer> idsQuesos;
     private ArrayAdapter<String> adaptador;
 
+    // Variables globales para recordar qué estamos buscando/filtrando en cada momento
+    private String busquedaActual = "";
+    private float notaMinimaActual = 0f;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         // 1. Inflamos el diseño de tu fragment_lista_lotes.xml
         View view = inflater.inflate(R.layout.fragment_lista_lotes, container, false);
 
-        // 2. Enlazamos la lista usando el ID real de tu XML
+        // 2. Enlazamos la lista y los nuevos componentes de búsqueda usando los IDs del XML
         listaVisual = view.findViewById(R.id.listaLotes);
+        SearchView buscadorLotes = view.findViewById(R.id.buscadorLotes);
+        Spinner spinnerFiltroNota = view.findViewById(R.id.spinnerFiltroNota);
 
-        // Instanciamos la base de datos usando getContext() (porque estamos en un Fragment)
+        // Instanciamos la base de datos usando getContext()
         gestorDB = new DataBaseHelper(getContext(), "gaztandegia.db", null, 1);
 
-        // 3. Cargamos los datos
-        cargarLista();
+        // 3. Configuramos las opciones del Spinner (Filtro de notas)
+        String[] opcionesFiltro = {"Todas", "Solo ★ 5", "★ 4 o más", "★ 3 o más"};
+        ArrayAdapter<String> adapterSpinner = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item, opcionesFiltro);
+        spinnerFiltroNota.setAdapter(adapterSpinner);
 
-        // 4. Lógica de borrado al mantener pulsado
+        /* =========================================================================
+           Quitar el foco automático del buscador para que no salte el teclado
+           StackOverflow ref: https://stackoverflow.com/questions/15543186/how-do-i-stop-the-keyboard-from-popping-up-on-activity-start
+           ========================================================================= */
+        buscadorLotes.clearFocus();
+
+        /* =========================================================================
+           BUSCADOR EN TIEMPO REAL Y FILTRO COMBINADO
+           Nota: La estrategia de guardar el estado del query y el spinner en variables
+           globales para lanzar la he sacado de StackOverflow:
+           https://stackoverflow.com/questions/30398247/how-to-filter-a-listview-with-searchview-and-spinner-together
+           ========================================================================= */
+
+        // A. Cuando el usuario escribe en la barra de búsqueda...
+        buscadorLotes.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) { return false; }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                busquedaActual = newText;
+                cargarLista(busquedaActual, notaMinimaActual); // Recargamos con el nuevo texto
+                return true;
+            }
+        });
+
+        // B. Cuando el usuario cambia el desplegable de las estrellas...
+        spinnerFiltroNota.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                switch(position) {
+                    case 0: notaMinimaActual = 0f; break; // Todas
+                    case 1: notaMinimaActual = 5f; break; // Solo 5
+                    case 2: notaMinimaActual = 4f; break; // 4 o más
+                    case 3: notaMinimaActual = 3f; break; // 3 o más
+                }
+                cargarLista(busquedaActual, notaMinimaActual); // Recargamos con la nueva nota mínima
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
+
+        // 4. Cargamos los datos por primera vez al abrir la pantalla
+        cargarLista(busquedaActual, notaMinimaActual);
+
+        // 5. Lógica de borrado al mantener pulsado
         listaVisual.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View v, int position, long id) {
-                if (idsQuesos.isEmpty()) return false;
+                // Evitamos errores si la lista está vacía o si hemos clicado en el texto de "No hay lotes"
+                if (idsQuesos.isEmpty() || idsQuesos.get(position) == -1) return false;
 
                 // Sacamos el ID real de la base de datos del queso seleccionado
                 int idLoteABorrar = idsQuesos.get(position);
 
-                // Mostramos la ventana emergente de confirmación (usando requireActivity())
+                // Mostramos la ventana emergente de confirmación
                 AlertDialog.Builder constructorDialogo = new AlertDialog.Builder(requireActivity());
                 constructorDialogo.setTitle("Borrar Queso");
                 constructorDialogo.setMessage("¿Estás seguro de que quieres borrar este lote de queso?");
@@ -62,8 +119,8 @@ public class ListaLoteFragments extends Fragment {
                         gestorDB.borrarLote(idLoteABorrar);
                         Toast.makeText(getContext(), "Lote eliminado correctamente", Toast.LENGTH_SHORT).show();
 
-                        // Recargamos la lista para que desaparezca al instante sin recargar toda la Activity
-                        cargarLista();
+                        // Recargamos la lista aplicando los filtros que estén puestos en ese momento
+                        cargarLista(busquedaActual, notaMinimaActual);
                     }
                 });
 
@@ -81,22 +138,24 @@ public class ListaLoteFragments extends Fragment {
         });
 
         /* =========================================================================
-           5. ABRIR DETALLES DEL LOTE (CLIC NORMAL)
+           6. ABRIR DETALLES DEL LOTE (CLIC NORMAL)
            Nota: La lógica para detectar si estamos en vertical u horizontal buscando
-           el contenedor de detalle por ID es el patrón Master-Detail clásico de Android.
+           el contenedor de detalle por ID es el patrón Master-Detail.
            StackOverflow ref: https://stackoverflow.com/questions/17495914/how-to-implement-master-detail-flow
            ========================================================================= */
         listaVisual.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                // Evitamos crasheos si la lista no tiene quesos reales
+                if (idsQuesos.isEmpty() || idsQuesos.get(position) == -1) return;
+
                 // 1. Sacamos el ID del lote que hemos tocado
                 int idLoteSeleccionado = idsQuesos.get(position);
 
                 // 2. Preparamos el fragmento de los detalles
-                // OJO: Cambia "DetalleLoteFragment" por el nombre real de tu clase
                 DetalleLoteFragment fragmentDetalle = new DetalleLoteFragment();
 
-                // Le pasamos el ID del queso "empaquetado" en un Bundle para que sepa cuál cargar
+                // Le pasamos el ID del queso "empaquetado" en un Bundle
                 Bundle paqueteDatos = new Bundle();
                 paqueteDatos.putInt("ID_LOTE", idLoteSeleccionado);
                 fragmentDetalle.setArguments(paqueteDatos);
@@ -110,10 +169,10 @@ public class ListaLoteFragments extends Fragment {
                             .replace(R.id.contenedor_detalle, fragmentDetalle)
                             .commit();
                 } else {
-                    // VERTICAL: Cambiamos toda la pantalla y le decimos a Android que nos deje volver atrás
+                    // VERTICAL: Cambiamos toda la pantalla y permitimos volver atrás
                     requireActivity().getSupportFragmentManager().beginTransaction()
                             .replace(R.id.contenedor_maestro, fragmentDetalle)
-                            .addToBackStack(null) // Esto hace que si pulsas la flecha de "Atrás", vuelvas a la lista
+                            .addToBackStack(null)
                             .commit();
                 }
             }
@@ -122,27 +181,37 @@ public class ListaLoteFragments extends Fragment {
         return view;
     }
 
-    // Método auxiliar para leer de SQLite y refrescar la lista
-    private void cargarLista() {
+    // Método auxiliar modificado para leer las columnas correctamente por su nombre
+    private void cargarLista(String busqueda, float notaMinima) {
         textosQuesos = new ArrayList<>();
         idsQuesos = new ArrayList<>();
 
-        Cursor cursor = gestorDB.obtenerTodosLosLotes();
-        while (cursor.moveToNext()) {
-            int id = cursor.getInt(0); // id_lote
-            String fecha = cursor.getString(1); // fecha
-            String nota = cursor.getString(5); // nota_calidad
+        Cursor cursor = gestorDB.obtenerLotesFiltrados(busqueda, notaMinima);
 
-            textosQuesos.add("Lote #" + id + " - " + fecha + " (" + nota + ")");
+        // Buscamos en qué posición exacta están las columnas que necesitamos
+        int idIndex = cursor.getColumnIndex("id_lote");
+        int fechaIndex = cursor.getColumnIndex("fecha");
+        int notaIndex = cursor.getColumnIndex("nota_calidad");
+
+        while (cursor.moveToNext()) {
+            // Sacamos los datos de forma segura (si no encuentra el índice usa el fallback)
+            int id = cursor.getInt(idIndex != -1 ? idIndex : 0);
+            String fecha = cursor.getString(fechaIndex != -1 ? fechaIndex : 1);
+            String nota = cursor.getString(notaIndex != -1 ? notaIndex : 8); // ¡La nota ahora es la columna 8!
+
+            String textoNota = (nota != null && !nota.isEmpty()) ? "★ " + nota : "Sin puntuar";
+
+            textosQuesos.add("Lote #" + id + " - " + fecha + " (" + textoNota + ")");
             idsQuesos.add(id);
         }
         cursor.close();
 
+        // Si la búsqueda no devuelve resultados
         if (textosQuesos.isEmpty()) {
-            textosQuesos.add("No hay lotes registrados.");
+            textosQuesos.add("No se encontraron lotes.");
+            idsQuesos.add(-1);
         }
 
-        // Usamos ArrayAdapter básico de momento. (Veo que tienes un LoteAdapter.java vacío preparado para el futuro)
         adaptador = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, textosQuesos);
         listaVisual.setAdapter(adaptador);
     }

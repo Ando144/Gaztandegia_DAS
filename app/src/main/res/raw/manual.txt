@@ -1,0 +1,47 @@
+======================================
+MANUAL DE USUARIO - GAZTANDEGIA APP
+======================================
+
+¡Bienvenido a la aplicación de gestión!
+Este manual te guiará por todas las funciones disponibles para llevar un control exhaustivo de la producción de nuestros quesos.
+
+1. ACCESO Y REGISTRO
+--------------------------------------
+Para utilizar la aplicación necesitas una cuenta de trabajador.
+- Registrarse: Si eres nuevo, pulsa en "Registrarse" en la pantalla de inicio. Deberás introducir tu nombre, email y una contraseña (y repetirla para confirmarla). El sistema verificará que el email no esté duplicado.
+- Iniciar Sesión: Si ya tienes cuenta, introduce tu email y contraseña. La aplicación recordará internamente qué trabajador está usando el dispositivo para asignarle la autoría de los quesos que fabrique.
+
+2. CREAR UN NUEVO LOTE
+--------------------------------------
+Desde la barra de navegación inferior, accede al icono de "Añadir Lote".
+- Fecha: Se rellena automáticamente con el día de hoy, pero puedes modificarla si estás registrando un lote atrasado. (Nota: Solo se permite registrar un lote por fecha).
+- Temperatura y Tiempo: Introduce los valores de cuajado. Puedes usar la barra deslizante (slider) para ajustar el tiempo visualmente, o escribirlo directamente en la casilla. Ambos sistemas están sincronizados.
+- PH y Observaciones: Anota el nivel de acidez final y cualquier detalle relevante del proceso ("Queso más curado", "Leche de oveja extra", etc.).
+- Guardar: Al pulsar "Guardar Lote", el queso quedará registrado en la base de datos a tu nombre y viajarás automáticamente al historial.
+
+3. HISTORIAL DE LOTES (VER QUESOS)
+--------------------------------------
+Aquí podrás ver una lista completa con todos los lotes fabricados.
+- Vista Inteligente: Si giras el móvil en horizontal, la pantalla se dividirá en dos (modo Maestro-Detalle). A la izquierda verás la lista, y a la derecha los detalles del queso que selecciones. Si usas el móvil en vertical, el detalle ocupará toda la pantalla.
+
+4. PUNTUAR LA CALIDAD (ESTRELLAS)
+--------------------------------------
+- Toca cualquier lote de la lista con un "clic normal" para abrir su ficha detallada.
+- Verás todos los datos técnicos (Temperatura, Tiempo, PH).
+- En la parte inferior, encontrarás una barra de 5 estrellas. Puntúa el resultado de la cata de ese lote y pulsa "Guardar Nota". Las estrellas se quedarán guardadas permanentemente en la base de datos.
+
+5. BORRADO DE LOTES
+--------------------------------------
+Si te has equivocado al registrar un queso o ha sido un lote defectuoso que se ha desechado, puedes eliminarlo del sistema.
+- Ve a la lista de lotes.
+- Mantén el dedo pulsado (clic largo) sobre el lote que deseas borrar.
+- Aparecerá una ventana de seguridad pidiéndote confirmación. Si aceptas, el lote se eliminará de la base de datos de forma irreversible.
+
+6. ESTADÍSTICAS Y AJUSTES
+--------------------------------------
+- Utiliza la barra de navegación inferior para moverte fluidamente entre las distintas secciones de la aplicación.
+- En la sección de "Ajustes" siempre tendrás a tu disposición este manual para resolver cualquier duda.
+
+======================================
+Desarrollado para el control de calidad
+======================================
