@@ -24,9 +24,10 @@ public class ListaLoteFragments extends Fragment {
 
     private DataBaseHelper gestorDB;
     private ListView listaVisual;
-    private ArrayList<String> textosQuesos;
-    private ArrayList<Integer> idsQuesos;
-    private ArrayAdapter<String> adaptador;
+
+    // NOVEDAD: Sustituimos los dos ArrayLists sueltos por una única lista del objeto Lote
+    private ArrayList<Lote> listaLotesData;
+    private LoteAdapter adaptadorPersonalizado;
 
     // Variables globales para recordar qué estamos buscando/filtrando en cada momento
     private String busquedaActual = "";
@@ -95,17 +96,20 @@ public class ListaLoteFragments extends Fragment {
         });
 
         // 4. Cargamos los datos por primera vez al abrir la pantalla
-        cargarLista(busquedaActual, notaMinimaActual);
+        // Nota: Movido también a onResume para actualizar al volver de otras pantallas.
 
         // 5. Lógica de borrado al mantener pulsado
         listaVisual.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View v, int position, long id) {
+                // Recuperamos el objeto Lote que se ha clicado
+                Lote loteClicado = listaLotesData.get(position);
+
                 // Evitamos errores si la lista está vacía o si hemos clicado en el texto de "No hay lotes"
-                if (idsQuesos.isEmpty() || idsQuesos.get(position) == -1) return false;
+                if (listaLotesData.isEmpty() || loteClicado.getIdLote() == -1) return false;
 
                 // Sacamos el ID real de la base de datos del queso seleccionado
-                int idLoteABorrar = idsQuesos.get(position);
+                int idLoteABorrar = loteClicado.getIdLote();
 
                 // Mostramos la ventana emergente de confirmación
                 AlertDialog.Builder constructorDialogo = new AlertDialog.Builder(requireActivity());
@@ -146,11 +150,14 @@ public class ListaLoteFragments extends Fragment {
         listaVisual.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                // Recuperamos el objeto Lote que se ha clicado
+                Lote loteClicado = listaLotesData.get(position);
+
                 // Evitamos crasheos si la lista no tiene quesos reales
-                if (idsQuesos.isEmpty() || idsQuesos.get(position) == -1) return;
+                if (listaLotesData.isEmpty() || loteClicado.getIdLote() == -1) return;
 
                 // 1. Sacamos el ID del lote que hemos tocado
-                int idLoteSeleccionado = idsQuesos.get(position);
+                int idLoteSeleccionado = loteClicado.getIdLote();
 
                 // 2. Preparamos el fragmento de los detalles
                 DetalleLoteFragment fragmentDetalle = new DetalleLoteFragment();
@@ -181,10 +188,17 @@ public class ListaLoteFragments extends Fragment {
         return view;
     }
 
-    // Método auxiliar modificado para leer las columnas correctamente por su nombre
+    // NOVEDAD: Al volver a esta pantalla desde la creación de un lote, forzamos la recarga de la lista
+    @Override
+    public void onResume() {
+        super.onResume();
+        cargarLista(busquedaActual, notaMinimaActual);
+    }
+
+    // Método auxiliar modificado para usar POO y el LoteAdapter
     private void cargarLista(String busqueda, float notaMinima) {
-        textosQuesos = new ArrayList<>();
-        idsQuesos = new ArrayList<>();
+        // Inicializamos la lista de objetos
+        listaLotesData = new ArrayList<>();
 
         Cursor cursor = gestorDB.obtenerLotesFiltrados(busqueda, notaMinima);
 
@@ -201,18 +215,18 @@ public class ListaLoteFragments extends Fragment {
 
             String textoNota = (nota != null && !nota.isEmpty()) ? "★ " + nota : "Sin puntuar";
 
-            textosQuesos.add("Lote #" + id + " - " + fecha + " (" + textoNota + ")");
-            idsQuesos.add(id);
+            // Creamos un objeto Lote nuevo y lo añadimos a nuestra lista
+            listaLotesData.add(new Lote(id, fecha, textoNota));
         }
         cursor.close();
 
-        // Si la búsqueda no devuelve resultados
-        if (textosQuesos.isEmpty()) {
-            textosQuesos.add("No se encontraron lotes.");
-            idsQuesos.add(-1);
+        // Si la búsqueda no devuelve resultados, creamos un Lote "falso" para avisar al usuario
+        if (listaLotesData.isEmpty()) {
+            listaLotesData.add(new Lote(-1, "No se encontraron lotes.", ""));
         }
 
-        adaptador = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, textosQuesos);
-        listaVisual.setAdapter(adaptador);
+        // Le pasamos la lista de objetos a nuestro nuevo Adaptador
+        adaptadorPersonalizado = new LoteAdapter(getContext(), listaLotesData);
+        listaVisual.setAdapter(adaptadorPersonalizado);
     }
 }
