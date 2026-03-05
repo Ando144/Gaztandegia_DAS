@@ -111,31 +111,38 @@ public class MenuActivity extends AppCompatActivity {
        NUEVO: Método que lee las preferencias y cambia los textos de la cabecera
        ========================================================================= */
     private void actualizarTextosDrawer() {
-        NavigationView navigationView = findViewById(R.id.navigationView);
+        com.google.android.material.navigation.NavigationView navigationView = findViewById(R.id.navigationView);
 
-        // Comprobamos que el menú existe y que tiene una cabecera (Header)
         if (navigationView != null && navigationView.getHeaderCount() > 0) {
-            View headerView = navigationView.getHeaderView(0);
+            android.view.View headerView = navigationView.getHeaderView(0);
 
-            // Buscamos los TextViews DENTRO de la cabecera
-            // OJO: Asegúrate de que estos IDs son los que tienes en tu archivo XML de la cabecera
-            TextView tvNombreQueseria = headerView.findViewById(R.id.tvDrawerNombreQueseria);
-            TextView tvNombreTrabajador = headerView.findViewById(R.id.tvDrawerNombreTrabajador);
+            // Buscamos los textos
+            android.widget.TextView tvNombreQueseria = headerView.findViewById(R.id.tvDrawerNombreQueseria);
+            android.widget.TextView tvNombreTrabajador = headerView.findViewById(R.id.tvDrawerNombreTrabajador);
 
-            // 1. Leemos el nombre de la Quesería (que guardamos en SettingsActivity)
-            SharedPreferences prefAjustes = getSharedPreferences("AjustesGaztandegia", MODE_PRIVATE);
+            // NUEVO: Buscamos el ImageView del logo en la cabecera
+            // OJO: Cambia "imgLogoDrawer" por el ID real que le hayas puesto a la imagen en tu nav_header.xml
+            android.widget.ImageView imgLogoDrawer = headerView.findViewById(R.id.imgLogoDrawer);
+
+            android.content.SharedPreferences prefAjustes = getSharedPreferences("AjustesGaztandegia", MODE_PRIVATE);
             String nombreQueseria = prefAjustes.getString("NOMBRE_QUESERIA", "Gaztandegia SL");
 
-            // 2. Leemos el nombre del Trabajador (que deberíamos haber guardado en LoginActivity)
-            SharedPreferences prefUsuario = getSharedPreferences("MisPreferenciasQueseria", MODE_PRIVATE);
+            // NUEVO: Leemos la ruta de la foto
+            String rutaFoto = prefAjustes.getString("RUTA_LOGO_QUESERIA", "");
+
+            android.content.SharedPreferences prefUsuario = getSharedPreferences("MisPreferenciasQueseria", MODE_PRIVATE);
             String nombreTrabajador = prefUsuario.getString("NOMBRE_TRABAJADOR_ACTUAL", "Trabajador");
 
-            // 3. Aplicamos los textos
-            if (tvNombreQueseria != null) {
-                tvNombreQueseria.setText(nombreQueseria);
-            }
-            if (tvNombreTrabajador != null) {
-                tvNombreTrabajador.setText("Operario: " + nombreTrabajador);
+            if (tvNombreQueseria != null) tvNombreQueseria.setText(nombreQueseria);
+            if (tvNombreTrabajador != null) tvNombreTrabajador.setText("Operario: " + nombreTrabajador);
+
+
+            if (!rutaFoto.isEmpty() && imgLogoDrawer != null) {
+                try {
+                    imgLogoDrawer.setImageURI(android.net.Uri.parse(rutaFoto));
+                } catch (Exception e) {
+                    // Si falla (ej: borró la foto del móvil), se queda el logo por defecto
+                }
             }
         }
     }

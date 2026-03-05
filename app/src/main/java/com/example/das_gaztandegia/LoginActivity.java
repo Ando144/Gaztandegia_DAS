@@ -14,6 +14,21 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        /* =========================================================================
+           APLICAR MODO OSCURO AL ARRANCAR LA APP
+           Leemos las preferencias ANTES de cargar el diseño para que no haya parpadeos
+           ========================================================================= */
+        android.content.SharedPreferences prefAjustes = getSharedPreferences("AjustesGaztandegia", MODE_PRIVATE);
+        boolean modoOscuroActivado = prefAjustes.getBoolean("MODO_OSCURO", false);
+
+        if (modoOscuroActivado) {
+            androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES);
+        } else {
+            androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO);
+        }
+
+        // Una vez configurado el tema, ya podemos pintar la pantalla
         setContentView(R.layout.activity_login);
 
         // 1. Enlazamos las cajas de texto donde escribe el usuario
@@ -42,7 +57,7 @@ public class LoginActivity extends AppCompatActivity {
                     if (idDelUsuarioLogueado != -1) { // Si es diferente a -1, es que existe
 
                         /* =========================================================================
-                           NUEVO: Buscar el nombre en la BD y guardar ambos datos en SharedPreferences
+                           Buscar el nombre en la BD y guardar ambos datos en SharedPreferences
                            ========================================================================= */
                         // Pedimos a la base de datos el nombre real de este usuario
                         String nombreDelTrabajador = gestorDB.obtenerNombreUsuario(idDelUsuarioLogueado);
@@ -58,8 +73,10 @@ public class LoginActivity extends AppCompatActivity {
 
                         Toast.makeText(LoginActivity.this, "¡Bienvenido, " + nombreDelTrabajador + "!", Toast.LENGTH_SHORT).show();
 
-                        Intent intent = new Intent(LoginActivity.this, MenuActivity.class);
-                        startActivity(intent);
+                        // Usamos el nuevo método de navegación para saltar al menú
+                        irAPantalla(MenuActivity.class);
+
+                        // Cerramos el login para que no puedan darle a "Atrás" y volver aquí
                         finish();
                     } else {
                         Toast.makeText(LoginActivity.this, "Error: Email o contraseña incorrectos", Toast.LENGTH_LONG).show();
@@ -72,10 +89,38 @@ public class LoginActivity extends AppCompatActivity {
         btnRegistrar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Viajamos a la pantalla de registro
-                Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
-                startActivity(intent);
+                // Usamos el nuevo método de navegación para evitar abrir múltiples registros
+                irAPantalla(RegisterActivity.class);
             }
         });
+
+        /* =========================================================================
+           CARGAR EL LOGO PERSONALIZADO (Si el usuario lo cambió en Ajustes)
+           ========================================================================= */
+        android.widget.ImageView imgLogoLogin = findViewById(R.id.LogAvatar);
+
+        // La ruta de la foto ya se lee de prefAjustes (que instanciamos arriba del todo para el modo oscuro)
+        String rutaFotoLogin = prefAjustes.getString("RUTA_LOGO_QUESERIA", "");
+
+        if (!rutaFotoLogin.isEmpty() && imgLogoLogin != null) {
+            try {
+                imgLogoLogin.setImageURI(android.net.Uri.parse(rutaFotoLogin));
+            } catch (Exception e) {
+                // Ignoramos el error, se queda el quesito por defecto
+            }
+        }
+    }
+
+    /* =========================================================================
+       NUEVO: Método para controlar la pila de actividades (Backstack)
+       ========================================================================= */
+    private void irAPantalla(Class<?> claseDestino) {
+        Intent intent = new Intent(this, claseDestino);
+
+        // Aplicando  CLEAR_TOP y SINGLE_TOP
+        // para no abrir 500 veces la misma pantalla y reventar la memoria
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+
+        startActivity(intent);
     }
 }

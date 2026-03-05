@@ -1,9 +1,11 @@
 package com.example.das_gaztandegia;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,6 +16,22 @@ public class RegisterActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
+
+        /* =========================================================================
+           CARGAR EL LOGO PERSONALIZADO
+           ¡Este es su sitio correcto! Nada más cargar la pantalla.
+           ========================================================================= */
+        ImageView imgLogoRegistro = findViewById(R.id.RegAvatar);
+        SharedPreferences prefAjustes = getSharedPreferences("AjustesGaztandegia", MODE_PRIVATE);
+        String rutaFotoRegistro = prefAjustes.getString("RUTA_LOGO_QUESERIA", "");
+
+        if (!rutaFotoRegistro.isEmpty() && imgLogoRegistro != null) {
+            try {
+                imgLogoRegistro.setImageURI(android.net.Uri.parse(rutaFotoRegistro));
+            } catch (Exception e) {
+                // Ignoramos el error
+            }
+        }
 
         // 1. Enlazamos las cajas de texto
         EditText cajaNombre = findViewById(R.id.RegName);

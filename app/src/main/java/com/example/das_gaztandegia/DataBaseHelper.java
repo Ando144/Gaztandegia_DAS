@@ -9,13 +9,11 @@ import androidx.annotation.Nullable;
 
 public class DataBaseHelper extends SQLiteOpenHelper {
 
-    // Constructor básico de la base de datos
     public DataBaseHelper(@Nullable Context context, @Nullable String name,
                           @Nullable SQLiteDatabase.CursorFactory factory, int version) {
         super(context, name, factory, version);
     }
 
-    // Se ejecuta la primera vez que la app necesita la base de datos. Aquí creamos las tablas.
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
 
@@ -47,11 +45,9 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         onCreate(sqLiteDatabase);
     }
 
-    /* =========================================================================
-       MÉTODOS PARA LOS USUARIOS (LOGIN Y REGISTRO)
-       ========================================================================= */
 
-    // Guarda un trabajador nuevo en la BD. Devuelve true si ha ido bien, o false si falla (ej. correo repetido).
+
+    // Guarda un trabajador nuevo en la BD. Devuelve true si ha ido bien, o false si falla
     public boolean insertarUsuario(String nombre, String email, String password) {
         SQLiteDatabase bd = getWritableDatabase();
 
@@ -61,12 +57,12 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         nuevo.put("password", password);
 
         long resultado = bd.insert("Usuarios", null, nuevo);
-        bd.close(); // Siempre cerramos para no consumir memoria a lo tonto
+        bd.close();
 
         return resultado != -1;
     }
 
-    // Comprueba el login y devuelve el ID del usuario (o -1 si falla)
+    // Comprueba el login y devuelve el ID del usuario y -1 si falla
     public int comprobarLogin(String email, String password) {
         android.database.sqlite.SQLiteDatabase bd = getReadableDatabase();
 
@@ -181,8 +177,8 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     public String obtenerNombreUsuario(int idUsuario) {
         android.database.sqlite.SQLiteDatabase bd = this.getReadableDatabase();
 
-        // OJO: Asegúrate de que tu tabla de usuarios se llama "Usuarios" y la columna del nombre "nombre"
-        // Si en tu BD se llaman distinto (ej: "Trabajadores"), cámbialo en la línea de abajo.
+
+
         android.database.Cursor cursor = bd.rawQuery("SELECT nombre FROM Usuarios WHERE id_usuario = ?", new String[]{String.valueOf(idUsuario)});
 
         String nombreEncontrado = "Trabajador"; // Valor por defecto por si falla

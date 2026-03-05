@@ -182,12 +182,21 @@ public class SettingsActivity extends AppCompatActivity {
         SwitchMaterial switchNotificaciones = findViewById(R.id.switchNotificaciones);
         Spinner spinnerIdioma = findViewById(R.id.spinnerIdioma);
 
+        // AQUÍ ESTÁ LA MAGIA DEL MODO OSCURO ACTUALIZADA
         if (switchModoOscuro != null) {
             switchModoOscuro.setChecked(misPreferencias.getBoolean("MODO_OSCURO", false));
             switchModoOscuro.setOnCheckedChangeListener(new android.widget.CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(android.widget.CompoundButton buttonView, boolean isChecked) {
+                    // 1. Guardamos la decisión en la memoria
                     misPreferencias.edit().putBoolean("MODO_OSCURO", isChecked).apply();
+
+                    // 2. Le decimos a Android que cambie el tema de TODA la app al instante
+                    if (isChecked) {
+                        androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES);
+                    } else {
+                        androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO);
+                    }
                 }
             });
         }
@@ -257,6 +266,7 @@ public class SettingsActivity extends AppCompatActivity {
                 }
             });
         }
+
     }
 
     private void irAPantalla(Class<?> claseDestino) {
