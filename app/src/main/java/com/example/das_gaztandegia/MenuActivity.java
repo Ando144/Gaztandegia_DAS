@@ -1,10 +1,12 @@
 package com.example.das_gaztandegia;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.TextView; // IMPORTANTE: Añadido para poder modificar los textos
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -66,11 +68,76 @@ public class MenuActivity extends AppCompatActivity {
         MaterialCardView cardStats = findViewById(R.id.cardEstadisticas);
         MaterialCardView cardAjustes = findViewById(R.id.cardAjustes);
 
+        // Cambiado a la versión extendida (sin lambdas)
+        cardNuevoLote.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                irAPantalla(NuevoLoteActivity.class);
+            }
+        });
 
-        cardNuevoLote.setOnClickListener(v -> irAPantalla(NuevoLoteActivity.class));
-        cardVerLotes.setOnClickListener(v -> irAPantalla(ListActivity.class));
-        cardStats.setOnClickListener(v -> irAPantalla(StatsActivity.class));
-        cardAjustes.setOnClickListener(v -> irAPantalla(SettingsActivity.class));
+        cardVerLotes.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                irAPantalla(ListActivity.class);
+            }
+        });
+
+        cardStats.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                irAPantalla(StatsActivity.class);
+            }
+        });
+
+        cardAjustes.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                irAPantalla(SettingsActivity.class);
+            }
+        });
+    }
+
+    /* =========================================================================
+       NUEVO: onResume() para actualizar el menú lateral al volver a esta pantalla
+       ========================================================================= */
+    @Override
+    protected void onResume() {
+        super.onResume();
+        actualizarTextosDrawer();
+    }
+
+    /* =========================================================================
+       NUEVO: Método que lee las preferencias y cambia los textos de la cabecera
+       ========================================================================= */
+    private void actualizarTextosDrawer() {
+        NavigationView navigationView = findViewById(R.id.navigationView);
+
+        // Comprobamos que el menú existe y que tiene una cabecera (Header)
+        if (navigationView != null && navigationView.getHeaderCount() > 0) {
+            View headerView = navigationView.getHeaderView(0);
+
+            // Buscamos los TextViews DENTRO de la cabecera
+            // OJO: Asegúrate de que estos IDs son los que tienes en tu archivo XML de la cabecera
+            TextView tvNombreQueseria = headerView.findViewById(R.id.tvDrawerNombreQueseria);
+            TextView tvNombreTrabajador = headerView.findViewById(R.id.tvDrawerNombreTrabajador);
+
+            // 1. Leemos el nombre de la Quesería (que guardamos en SettingsActivity)
+            SharedPreferences prefAjustes = getSharedPreferences("AjustesGaztandegia", MODE_PRIVATE);
+            String nombreQueseria = prefAjustes.getString("NOMBRE_QUESERIA", "Gaztandegia SL");
+
+            // 2. Leemos el nombre del Trabajador (que deberíamos haber guardado en LoginActivity)
+            SharedPreferences prefUsuario = getSharedPreferences("MisPreferenciasQueseria", MODE_PRIVATE);
+            String nombreTrabajador = prefUsuario.getString("NOMBRE_TRABAJADOR_ACTUAL", "Trabajador");
+
+            // 3. Aplicamos los textos
+            if (tvNombreQueseria != null) {
+                tvNombreQueseria.setText(nombreQueseria);
+            }
+            if (tvNombreTrabajador != null) {
+                tvNombreTrabajador.setText("Operario: " + nombreTrabajador);
+            }
+        }
     }
 
     private void irAPantalla(Class<?> claseDestino) {

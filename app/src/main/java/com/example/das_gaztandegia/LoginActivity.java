@@ -24,7 +24,7 @@ public class LoginActivity extends AppCompatActivity {
         Button btnAcceder = findViewById(R.id.accesBtn);
         Button btnRegistrar = findViewById(R.id.registerBtn);
 
-// 3. Programamos el clic del botón Acceder
+        // 3. Programamos el clic del botón Acceder
         btnAcceder.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -36,18 +36,27 @@ public class LoginActivity extends AppCompatActivity {
                 } else {
                     DataBaseHelper gestorDB = new DataBaseHelper(LoginActivity.this, "gaztandegia.db", null, 1);
 
-                    // Ahora la BD nos devuelve un número entero
+                    // La BD nos devuelve el ID del usuario
                     int idDelUsuarioLogueado = gestorDB.comprobarLogin(email, password);
 
                     if (idDelUsuarioLogueado != -1) { // Si es diferente a -1, es que existe
 
-                        // --- AQUÍ USAMOS LAS SHARED o esas PARA GUARDAR EL ID DEL TRABAJADOR ACTUAL ---
+                        /* =========================================================================
+                           NUEVO: Buscar el nombre en la BD y guardar ambos datos en SharedPreferences
+                           ========================================================================= */
+                        // Pedimos a la base de datos el nombre real de este usuario
+                        String nombreDelTrabajador = gestorDB.obtenerNombreUsuario(idDelUsuarioLogueado);
+
+                        // Abrimos las preferencias
                         android.content.SharedPreferences preferencias = getSharedPreferences("MisPreferenciasQueseria", MODE_PRIVATE);
                         android.content.SharedPreferences.Editor editor = preferencias.edit();
+
+                        // Guardamos el ID (para enlazar los quesos) y el Nombre (para el menú visual)
                         editor.putInt("ID_TRABAJADOR_ACTUAL", idDelUsuarioLogueado);
+                        editor.putString("NOMBRE_TRABAJADOR_ACTUAL", nombreDelTrabajador);
                         editor.apply(); // Guardamos los cambios
 
-                        Toast.makeText(LoginActivity.this, "¡Bienvenido!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(LoginActivity.this, "¡Bienvenido, " + nombreDelTrabajador + "!", Toast.LENGTH_SHORT).show();
 
                         Intent intent = new Intent(LoginActivity.this, MenuActivity.class);
                         startActivity(intent);
@@ -58,6 +67,7 @@ public class LoginActivity extends AppCompatActivity {
                 }
             }
         });
+
         // 4. Programamos el clic del botón Registrarse
         btnRegistrar.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -65,7 +75,6 @@ public class LoginActivity extends AppCompatActivity {
                 // Viajamos a la pantalla de registro
                 Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
                 startActivity(intent);
-
             }
         });
     }

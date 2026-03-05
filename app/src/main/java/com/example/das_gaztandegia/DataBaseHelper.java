@@ -169,4 +169,31 @@ public class DataBaseHelper extends SQLiteOpenHelper {
             return bd.rawQuery(query, new String[]{"%" + textoBusqueda + "%", "%" + textoBusqueda + "%"});
         }
     }
+
+    // Método para borrar TODOS los lotes
+    public void borrarTodoElHistorial() {
+        android.database.sqlite.SQLiteDatabase bd = getWritableDatabase();
+        bd.execSQL("DELETE FROM Lotes"); // Borra todo el contenido de la tabla
+        bd.close();
+    }
+
+    // Método para obtener el nombre de un trabajador a partir de su ID
+    public String obtenerNombreUsuario(int idUsuario) {
+        android.database.sqlite.SQLiteDatabase bd = this.getReadableDatabase();
+
+        // OJO: Asegúrate de que tu tabla de usuarios se llama "Usuarios" y la columna del nombre "nombre"
+        // Si en tu BD se llaman distinto (ej: "Trabajadores"), cámbialo en la línea de abajo.
+        android.database.Cursor cursor = bd.rawQuery("SELECT nombre FROM Usuarios WHERE id_usuario = ?", new String[]{String.valueOf(idUsuario)});
+
+        String nombreEncontrado = "Trabajador"; // Valor por defecto por si falla
+
+        if (cursor.moveToFirst()) {
+            nombreEncontrado = cursor.getString(0); // Cogemos la primera columna (el nombre)
+        }
+
+        cursor.close();
+        bd.close();
+
+        return nombreEncontrado;
+    }
 }

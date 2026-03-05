@@ -16,6 +16,7 @@
         android:padding="8dp"/>
 
     <TextView
+        android:id="@+id/tvDrawerNombreQueseria"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
@@ -25,6 +26,7 @@
         android:textColor="#FFFFFF" />
 
     <TextView
+        android:id="@+id/tvDrawerNombreTrabajador"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Trabajador: Andoni"
