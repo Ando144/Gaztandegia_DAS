@@ -101,9 +101,14 @@ public class SettingsActivity extends AppCompatActivity {
         String rutaFotoGuardada = misPreferencias.getString("RUTA_LOGO_QUESERIA", "");
         if (!rutaFotoGuardada.isEmpty() && imgLogoAjustes != null) {
             try {
-                imgLogoAjustes.setImageURI(android.net.Uri.parse(rutaFotoGuardada));
+                // NUEVO: Cargamos desde el archivo interno, no desde el URI
+                java.io.File archivoLogo = new java.io.File(rutaFotoGuardada);
+                if (archivoLogo.exists()) {
+                    android.graphics.Bitmap myBitmap = android.graphics.BitmapFactory.decodeFile(archivoLogo.getAbsolutePath());
+                    imgLogoAjustes.setImageBitmap(myBitmap);
+                }
             } catch (Exception e) {
-                // Si el usuario ha borrado la foto de su galería, ignoramos el error y se quedará el logo por defecto
+                // Si falla, se queda el logo por defecto
             }
         }
 
