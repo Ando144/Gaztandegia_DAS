@@ -192,4 +192,20 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 
         return nombreEncontrado;
     }
+
+    // Método para contar cuántos lotes no tienen nota
+    public int contarLotesSinPuntuar() {
+        android.database.sqlite.SQLiteDatabase bd = this.getReadableDatabase();
+        // Buscamos los que tengan la nota nula o vacía
+        android.database.Cursor cursor = bd.rawQuery("SELECT COUNT(*) FROM Lotes WHERE nota_calidad IS NULL OR nota_calidad = ''", null);
+
+        int cantidad = 0;
+        if (cursor.moveToFirst()) {
+            cantidad = cursor.getInt(0);
+        }
+
+        cursor.close();
+        bd.close();
+        return cantidad;
+    }
 }

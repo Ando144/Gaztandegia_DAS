@@ -15,21 +15,40 @@ public class RegisterActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        /* =========================================================================
+           APLICAR MODO OSCURO AL ARRANCAR LA PANTALLA
+           ========================================================================= */
+        SharedPreferences prefAjustes = getSharedPreferences("AjustesGaztandegia", MODE_PRIVATE);
+        boolean modoOscuroActivado = prefAjustes.getBoolean("MODO_OSCURO", false);
+
+        if (modoOscuroActivado) {
+            androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES);
+        } else {
+            androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO);
+        }
+
+        // Una vez configurado el tema, ya podemos cargar el diseño visual
         setContentView(R.layout.activity_register);
 
         /* =========================================================================
-           CARGAR EL LOGO PERSONALIZADO
-           ¡Este es su sitio correcto! Nada más cargar la pantalla.
+           CARGAR EL LOGO PERSONALIZADO (Desde la memoria interna)
+           Nota (StackOverflow): Usamos BitmapFactory.decodeFile() en lugar de setImageURI()
+           para evitar SecurityException con el Auto Backup de Google Drive.
            ========================================================================= */
         ImageView imgLogoRegistro = findViewById(R.id.RegAvatar);
-        SharedPreferences prefAjustes = getSharedPreferences("AjustesGaztandegia", MODE_PRIVATE);
         String rutaFotoRegistro = prefAjustes.getString("RUTA_LOGO_QUESERIA", "");
 
         if (!rutaFotoRegistro.isEmpty() && imgLogoRegistro != null) {
             try {
-                imgLogoRegistro.setImageURI(android.net.Uri.parse(rutaFotoRegistro));
+                java.io.File archivoLogo = new java.io.File(rutaFotoRegistro);
+                // Si la copia de la foto existe, la ponemos. Si no, dejamos la del XML
+                if (archivoLogo.exists()) {
+                    android.graphics.Bitmap myBitmap = android.graphics.BitmapFactory.decodeFile(archivoLogo.getAbsolutePath());
+                    imgLogoRegistro.setImageBitmap(myBitmap);
+                }
             } catch (Exception e) {
-                // Ignoramos el error
+                // Ignoramos el error silenciosamente
             }
         }
 

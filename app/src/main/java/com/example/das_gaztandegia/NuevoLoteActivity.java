@@ -196,6 +196,39 @@ public class NuevoLoteActivity extends AppCompatActivity {
                         );
 
                         if (exito) {
+
+                            /* =========================================================================
+                              NUEVO: NOTIFICACIÓN DE LOTE CREADO
+                             ========================================================================= */
+                            android.content.SharedPreferences prefAjustes = getSharedPreferences("AjustesGaztandegia", MODE_PRIVATE);
+
+                            // 1. Comprobamos si tiene las notificaciones activadas
+                            if (prefAjustes.getBoolean("NOTIFICACIONES", true)) {
+
+                                // 2. Comprobamos los permisos (Android 13+)
+                                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+                                    if (androidx.core.content.ContextCompat.checkSelfPermission(NuevoLoteActivity.this, android.Manifest.permission.POST_NOTIFICATIONS) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                                        androidx.core.app.ActivityCompat.requestPermissions(NuevoLoteActivity.this, new String[]{android.Manifest.permission.POST_NOTIFICATIONS}, 101);
+                                    }
+                                }
+
+                                // 3. Lanzamos la notificación
+                                try {
+                                    androidx.core.app.NotificationCompat.Builder builder = new androidx.core.app.NotificationCompat.Builder(NuevoLoteActivity.this, "canal_gaztandegia")
+                                            .setSmallIcon(android.R.drawable.ic_input_add) // Icono de "más"
+                                            .setContentTitle("Nuevo Lote Registrado")
+                                            .setContentText("El lote de queso se ha guardado correctamente en la base de datos.")
+                                            .setPriority(androidx.core.app.NotificationCompat.PRIORITY_DEFAULT)
+                                            .setAutoCancel(true);
+
+                                    androidx.core.app.NotificationManagerCompat managerNotif = androidx.core.app.NotificationManagerCompat.from(NuevoLoteActivity.this);
+                                    // Usamos ID 2 para que no pise la notificación de tareas pendientes si estuviera abierta
+                                    managerNotif.notify(2, builder.build());
+                                } catch (SecurityException e) {
+                                    // Si no hay permiso, lo ignoramos
+                                }
+                            }
+
                             Toast.makeText(NuevoLoteActivity.this, "¡Queso guardado con éxito!", Toast.LENGTH_SHORT).show();
 
                             // Si todo va bien, viajamos a la lista

@@ -44,26 +44,48 @@ public class SettingsActivity extends AppCompatActivity {
            NUEVO: PREPARAR EL LANZADOR DE LA GALERÍA
            Esto se queda escuchando hasta que el usuario elige una foto y vuelve.
            ========================================================================= */
+        /* =========================================================================
+           PREPARAR EL LANZADOR DE LA GALERÍA Y COPIAR LA IMAGEN
+           Nota (StackOverflow): Copiamos la imagen a getFilesDir() para evitar el
+           SecurityException. Si solo guardamos el URI, Android nos revoca el permiso
+           de lectura tras reiniciar o reinstalar la app (Auto Backup).
+           Ref: https://stackoverflow.com/questions/41457178/android-how-to-save-an-image-to-internal-storage
+           ========================================================================= */
         lanzadorGaleria = registerForActivityResult(
                 new androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult(),
                 new androidx.activity.result.ActivityResultCallback<androidx.activity.result.ActivityResult>() {
                     @Override
                     public void onActivityResult(androidx.activity.result.ActivityResult result) {
                         if (result.getResultCode() == RESULT_OK && result.getData() != null) {
-                            // Sacamos la "ruta" (URI) de la imagen elegida
                             android.net.Uri uriImagen = result.getData().getData();
 
                             if (uriImagen != null) {
-                                // IMPORTANTÍSIMO: Le decimos a Android que nos guarde el permiso para leer esta foto mañana o pasado
-                                getContentResolver().takePersistableUriPermission(uriImagen, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                                try {
+                                    // 1. Abrimos la imagen original de la galería
+                                    java.io.InputStream inputStream = getContentResolver().openInputStream(uriImagen);
+                                    android.graphics.Bitmap bitmap = android.graphics.BitmapFactory.decodeStream(inputStream);
 
-                                // Ponemos la foto en el circulito de la pantalla
-                                imgLogoAjustes.setImageURI(uriImagen);
+                                    // 2. Creamos un archivo dentro de la memoria privada de nuestra app
+                                    java.io.File directorio = getFilesDir();
+                                    java.io.File archivoFoto = new java.io.File(directorio, "logo_queseria.png");
 
-                                // Guardamos la ruta en SharedPreferences para que no se pierda al apagar el móvil
-                                SharedPreferences.Editor editor = misPreferencias.edit();
-                                editor.putString("RUTA_LOGO_QUESERIA", uriImagen.toString());
-                                editor.apply();
+                                    // 3. Guardamos la copia exacta en nuestro archivo
+                                    java.io.FileOutputStream outputStream = new java.io.FileOutputStream(archivoFoto);
+                                    bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, outputStream);
+                                    outputStream.flush();
+                                    outputStream.close();
+
+                                    // 4. Ponemos la foto en el circulito de Ajustes
+                                    imgLogoAjustes.setImageBitmap(bitmap);
+
+                                    // 5. Guardamos la RUTA DE NUESTRA COPIA PRIVADA en SharedPreferences
+                                    SharedPreferences.Editor editor = misPreferencias.edit();
+                                    editor.putString("RUTA_LOGO_QUESERIA", archivoFoto.getAbsolutePath());
+                                    editor.apply();
+
+                                } catch (Exception e) {
+                                    Toast.makeText(SettingsActivity.this, "Error al guardar la imagen", Toast.LENGTH_SHORT).show();
+                                }
                             }
                         }
                     }

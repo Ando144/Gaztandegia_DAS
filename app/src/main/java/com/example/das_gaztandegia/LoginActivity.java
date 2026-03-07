@@ -1,6 +1,8 @@
 package com.example.das_gaztandegia;
 
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -8,6 +10,10 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
+import androidx.core.content.ContextCompat;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -15,10 +21,6 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        /* =========================================================================
-           APLICAR MODO OSCURO AL ARRANCAR LA APP
-           Leemos las preferencias ANTES de cargar el diseño para que no haya parpadeos
-           ========================================================================= */
         android.content.SharedPreferences prefAjustes = getSharedPreferences("AjustesGaztandegia", MODE_PRIVATE);
         boolean modoOscuroActivado = prefAjustes.getBoolean("MODO_OSCURO", false);
 
@@ -28,18 +30,28 @@ public class LoginActivity extends AppCompatActivity {
             androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO);
         }
 
-        // Una vez configurado el tema, ya podemos pintar la pantalla
         setContentView(R.layout.activity_login);
 
-        // 1. Enlazamos las cajas de texto donde escribe el usuario
+        /* =========================================================================
+           NUEVO: CREAR EL CANAL DE NOTIFICACIONES
+           Lo creamos nada más arrancar la app.
+           ========================================================================= */
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            android.app.NotificationChannel canal = new android.app.NotificationChannel(
+                    "canal_gaztandegia",
+                    "Notificaciones de la Quesería",
+                    android.app.NotificationManager.IMPORTANCE_DEFAULT
+            );
+            canal.setDescription("Avisos sobre nuevos lotes y puntuaciones pendientes");
+            android.app.NotificationManager manager = getSystemService(android.app.NotificationManager.class);
+            if (manager != null) manager.createNotificationChannel(canal);
+        }
+
         EditText cajaEmail = findViewById(R.id.LogEmail);
         EditText cajaPassword = findViewById(R.id.LogContraseña);
-
-        // 2. Enlazamos los botones
         Button btnAcceder = findViewById(R.id.accesBtn);
         Button btnRegistrar = findViewById(R.id.registerBtn);
 
-        // 3. Programamos el clic del botón Acceder
         btnAcceder.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -50,33 +62,46 @@ public class LoginActivity extends AppCompatActivity {
                     Toast.makeText(LoginActivity.this, "Por favor, rellena todos los campos", Toast.LENGTH_SHORT).show();
                 } else {
                     DataBaseHelper gestorDB = new DataBaseHelper(LoginActivity.this, "gaztandegia.db", null, 1);
-
-                    // La BD nos devuelve el ID del usuario
                     int idDelUsuarioLogueado = gestorDB.comprobarLogin(email, password);
 
-                    if (idDelUsuarioLogueado != -1) { // Si es diferente a -1, es que existe
-
-                        /* =========================================================================
-                           Buscar el nombre en la BD y guardar ambos datos en SharedPreferences
-                           ========================================================================= */
-                        // Pedimos a la base de datos el nombre real de este usuario
+                    if (idDelUsuarioLogueado != -1) {
                         String nombreDelTrabajador = gestorDB.obtenerNombreUsuario(idDelUsuarioLogueado);
 
-                        // Abrimos las preferencias
                         android.content.SharedPreferences preferencias = getSharedPreferences("MisPreferenciasQueseria", MODE_PRIVATE);
                         android.content.SharedPreferences.Editor editor = preferencias.edit();
-
-                        // Guardamos el ID (para enlazar los quesos) y el Nombre (para el menú visual)
                         editor.putInt("ID_TRABAJADOR_ACTUAL", idDelUsuarioLogueado);
                         editor.putString("NOMBRE_TRABAJADOR_ACTUAL", nombreDelTrabajador);
-                        editor.apply(); // Guardamos los cambios
+                        editor.apply();
 
                         Toast.makeText(LoginActivity.this, "¡Bienvenido, " + nombreDelTrabajador + "!", Toast.LENGTH_SHORT).show();
 
-                        // Usamos el nuevo método de navegación para saltar al menú
-                        irAPantalla(MenuActivity.class);
+                        /* =========================================================================
+                           NUEVO: NOTIFICACIÓN DE LOTES SIN PUNTUAR AL ENTRAR
+                           ========================================================================= */
+                        // 1. Comprobamos si el usuario tiene las notificaciones activadas en Ajustes
+                        if (prefAjustes.getBoolean("NOTIFICACIONES", true)) {
+                            int lotesPendientes = gestorDB.contarLotesSinPuntuar();
 
-                        // Cerramos el login para que no puedan darle a "Atrás" y volver aquí
+                            if (lotesPendientes > 0) {
+                                // Construimos y lanzamos la notificación
+                                try {
+                                    NotificationCompat.Builder builder = new NotificationCompat.Builder(LoginActivity.this, "canal_gaztandegia")
+                                            .setSmallIcon(android.R.drawable.ic_dialog_info) // Icono por defecto de Android
+                                            .setContentTitle("¡Tienes tareas pendientes!")
+                                            .setContentText("Hay " + lotesPendientes + " lote(s) de queso sin puntuar en la bodega.")
+                                            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                                            .setAutoCancel(true);
+
+                                    NotificationManagerCompat managerNotif = NotificationManagerCompat.from(LoginActivity.this);
+                                    managerNotif.notify(1, builder.build()); // El 1 es el ID de esta notificación
+                                } catch (SecurityException e) {
+                                    // Si el usuario denegó el permiso, simplemente no hacemos nada
+                                }
+                            }
+                        }
+
+                        // Usamos tu método personalizado para navegar
+                        irAPantalla(MenuActivity.class);
                         finish();
                     } else {
                         Toast.makeText(LoginActivity.this, "Error: Email o contraseña incorrectos", Toast.LENGTH_LONG).show();
@@ -85,42 +110,42 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-        // 4. Programamos el clic del botón Registrarse
         btnRegistrar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Usamos el nuevo método de navegación para evitar abrir múltiples registros
+                // Usamos tu método personalizado para evitar múltiples pantallas
                 irAPantalla(RegisterActivity.class);
             }
         });
 
         /* =========================================================================
-           CARGAR EL LOGO PERSONALIZADO (Si el usuario lo cambió en Ajustes)
+           CARGAR EL LOGO PERSONALIZADO (Desde la memoria interna)
+           Nota (StackOverflow): Usamos BitmapFactory.decodeFile() en lugar de setImageURI()
+           para evitar SecurityException con el Auto Backup de Google Drive.
            ========================================================================= */
         android.widget.ImageView imgLogoLogin = findViewById(R.id.LogAvatar);
-
-        // La ruta de la foto ya se lee de prefAjustes (que instanciamos arriba del todo para el modo oscuro)
         String rutaFotoLogin = prefAjustes.getString("RUTA_LOGO_QUESERIA", "");
 
         if (!rutaFotoLogin.isEmpty() && imgLogoLogin != null) {
             try {
-                imgLogoLogin.setImageURI(android.net.Uri.parse(rutaFotoLogin));
+                java.io.File archivoLogo = new java.io.File(rutaFotoLogin);
+                // Si la copia de la foto existe, la ponemos. Si no, dejamos la del XML
+                if (archivoLogo.exists()) {
+                    android.graphics.Bitmap myBitmap = android.graphics.BitmapFactory.decodeFile(archivoLogo.getAbsolutePath());
+                    imgLogoLogin.setImageBitmap(myBitmap);
+                }
             } catch (Exception e) {
-                // Ignoramos el error, se queda el quesito por defecto
+                // Ignoramos el error silenciosamente
             }
         }
     }
 
     /* =========================================================================
-       NUEVO: Método para controlar la pila de actividades (Backstack)
+       CONTROL DE PILA: Navegación segura
        ========================================================================= */
     private void irAPantalla(Class<?> claseDestino) {
         Intent intent = new Intent(this, claseDestino);
-
-        // Aplicando  CLEAR_TOP y SINGLE_TOP
-        // para no abrir 500 veces la misma pantalla y reventar la memoria
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-
         startActivity(intent);
     }
 }

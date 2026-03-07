@@ -6,7 +6,8 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
-import android.widget.TextView; // IMPORTANTE: Añadido para poder modificar los textos
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -23,6 +24,19 @@ public class MenuActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        /* =========================================================================
+           APLICAR MODO OSCURO (Protección por si la app se restaura en esta pantalla)
+           ========================================================================= */
+        SharedPreferences prefAjustes = getSharedPreferences("AjustesGaztandegia", MODE_PRIVATE);
+        boolean modoOscuroActivado = prefAjustes.getBoolean("MODO_OSCURO", false);
+
+        if (modoOscuroActivado) {
+            androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES);
+        } else {
+            androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO);
+        }
+
         setContentView(R.layout.activity_menu);
 
         // Referencias del menú lateral (Drawer)
@@ -46,14 +60,11 @@ public class MenuActivity extends AppCompatActivity {
 
                 // Si le da a cerrar sesión
                 if (id == R.id.nav_cerrar_sesion) {
-                    // Intent explicito al login como pide la teoria
                     Intent intent = new Intent(MenuActivity.this, LoginActivity.class);
-
-                    // Le meto el CLEAR_TOP para cargarme el historial y que no puedan darle a "atrás" y entrar sin pass
-                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    // Usamos CLEAR_TASK y NEW_TASK para borrar absolutamente todo el historial al cerrar sesión
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     startActivity(intent);
-
-                    finish(); // chapamos la activity actual
+                    finish(); // Chapamos la activity actual
                 }
 
                 // Escondemos el menú después de hacer click
@@ -68,7 +79,6 @@ public class MenuActivity extends AppCompatActivity {
         MaterialCardView cardStats = findViewById(R.id.cardEstadisticas);
         MaterialCardView cardAjustes = findViewById(R.id.cardAjustes);
 
-        // Cambiado a la versión extendida (sin lambdas)
         cardNuevoLote.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -99,7 +109,7 @@ public class MenuActivity extends AppCompatActivity {
     }
 
     /* =========================================================================
-       NUEVO: onResume() para actualizar el menú lateral al volver a esta pantalla
+       onResume() para actualizar el menú lateral al volver a esta pantalla
        ========================================================================= */
     @Override
     protected void onResume() {
@@ -108,52 +118,54 @@ public class MenuActivity extends AppCompatActivity {
     }
 
     /* =========================================================================
-       NUEVO: Método que lee las preferencias y cambia los textos de la cabecera
+       Método que lee las preferencias y cambia los textos y la foto de la cabecera
        ========================================================================= */
     private void actualizarTextosDrawer() {
-        com.google.android.material.navigation.NavigationView navigationView = findViewById(R.id.navigationView);
+        NavigationView navigationView = findViewById(R.id.navigationView);
 
         if (navigationView != null && navigationView.getHeaderCount() > 0) {
-            android.view.View headerView = navigationView.getHeaderView(0);
+            View headerView = navigationView.getHeaderView(0);
 
-            // Buscamos los textos
-            android.widget.TextView tvNombreQueseria = headerView.findViewById(R.id.tvDrawerNombreQueseria);
-            android.widget.TextView tvNombreTrabajador = headerView.findViewById(R.id.tvDrawerNombreTrabajador);
+            // 1. Buscamos TODOS los elementos DENTRO del headerView
+            TextView tvNombreQueseria = headerView.findViewById(R.id.tvDrawerNombreQueseria);
+            TextView tvNombreTrabajador = headerView.findViewById(R.id.tvDrawerNombreTrabajador);
+            ImageView imgLogoDrawer = headerView.findViewById(R.id.imgLogoDrawer);
 
-            // NUEVO: Buscamos el ImageView del logo en la cabecera
-            // OJO: Cambia "imgLogoDrawer" por el ID real que le hayas puesto a la imagen en tu nav_header.xml
-            android.widget.ImageView imgLogoDrawer = headerView.findViewById(R.id.imgLogoDrawer);
-
-            android.content.SharedPreferences prefAjustes = getSharedPreferences("AjustesGaztandegia", MODE_PRIVATE);
+            // 2. Leemos la memoria
+            SharedPreferences prefAjustes = getSharedPreferences("AjustesGaztandegia", MODE_PRIVATE);
             String nombreQueseria = prefAjustes.getString("NOMBRE_QUESERIA", "Gaztandegia SL");
-
-            // NUEVO: Leemos la ruta de la foto
             String rutaFoto = prefAjustes.getString("RUTA_LOGO_QUESERIA", "");
 
-            android.content.SharedPreferences prefUsuario = getSharedPreferences("MisPreferenciasQueseria", MODE_PRIVATE);
+            SharedPreferences prefUsuario = getSharedPreferences("MisPreferenciasQueseria", MODE_PRIVATE);
             String nombreTrabajador = prefUsuario.getString("NOMBRE_TRABAJADOR_ACTUAL", "Trabajador");
 
+            // 3. Aplicamos los textos
             if (tvNombreQueseria != null) tvNombreQueseria.setText(nombreQueseria);
             if (tvNombreTrabajador != null) tvNombreTrabajador.setText("Operario: " + nombreTrabajador);
 
-
+            /* =========================================================================
+               4. CARGAMOS EL LOGO DE FORMA SEGURA (Anti-Crasheo)
+               ========================================================================= */
             if (!rutaFoto.isEmpty() && imgLogoDrawer != null) {
                 try {
-                    imgLogoDrawer.setImageURI(android.net.Uri.parse(rutaFoto));
+                    java.io.File archivoLogo = new java.io.File(rutaFoto);
+                    if (archivoLogo.exists()) {
+                        android.graphics.Bitmap myBitmap = android.graphics.BitmapFactory.decodeFile(archivoLogo.getAbsolutePath());
+                        imgLogoDrawer.setImageBitmap(myBitmap);
+                    }
                 } catch (Exception e) {
-                    // Si falla (ej: borró la foto del móvil), se queda el logo por defecto
+                    // Ignoramos el error silenciosamente
                 }
             }
         }
     }
 
+    /* =========================================================================
+       CONTROL DE PILA: Navegación segura
+       ========================================================================= */
     private void irAPantalla(Class<?> claseDestino) {
-        Intent intent = new Intent(MenuActivity.this, claseDestino);
-
-        // Aplicando  CLEAR_TOP y SINGLE_TOP
-        // para no abrir 500 veces la misma pantalla y reventar la memoria
+        Intent intent = new Intent(this, claseDestino);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-
         startActivity(intent);
     }
 }
